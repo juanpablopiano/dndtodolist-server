@@ -9,18 +9,37 @@ const Board = require("../models/board");
 router.post("/api/todo/new", async (req, res) => {
 	const todo = new Todo(req.body);
 
-	const savedTodo = await todo.save();
+	try {
+		const savedTodo = await todo.save();
 
-	res.json(savedTodo.id);
+		const container = await Container.findById(savedTodo.container);
+		container.todos.push(savedTodo._id);
+		
+		const io = req.app.get("socketio");
+		io.emit("new todo", savedTodo);
+		await container.save();
+		res.json(savedTodo.id);
+	} catch (error) {
+		console.log(error);
+		res.sendStatus(503)
+	}
 });
-// Read Todo
-router.get("/api/todo/:id", async (req, res) => {
+// READ a Todo
+router.get("/api/todo/get/:id", async (req, res) => {
 	const id = req.params.id;
 
 	const foundTodo = await Todo.findById(id);
 
 	res.json(foundTodo);
 });
+// READ ALL Todos
+router.get("/api/todo/all/:containerId?", async (req, res) => {
+	const containerId = req.params.containerId;
+
+	const foundTodos = await Todo.find({container: containerId})
+
+	res.json(foundTodos);
+})
 // Update Todo
 router.put("/api/todo/:id", async (req, res) => {
 	const id = req.params.id;
@@ -35,9 +54,9 @@ router.put("/api/todo/:id", async (req, res) => {
 router.delete("/api/todo/:id", async (req, res) => {
 	const id = req.params.id;
 
-	const deletedTodo = await Todo.findOneAndDelete(id);
+	const deletedTodo = await Todo.findByIdAndDelete(id);
 
-	res.json(deletedTodo);
+	res.json(deletedTodo._id);
 });
 
 /* Container Routes */

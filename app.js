@@ -27,7 +27,8 @@ const dbObject = {
 	useUnifiedTopology: true,
 	useFindAndModify: false,
 };
-mongoose.connect(process.env.MONGODB_URL, dbObject);
+// mongoose.connect(process.env.MONGODB_URL, dbObject);
+mongoose.connect(process.env.DB_URL_LOCAL, dbObject);
 const db = mongoose.connection;
 db.once("open", () => {
 	console.log("mongoose connected to db");

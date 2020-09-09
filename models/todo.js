@@ -7,12 +7,13 @@ const todoSchema = new mongoose.Schema({
 	},
 	description: String,
 	author: String,
-	completed: Boolean,
+	completed: {
+		type: Boolean,
+		default: false,
+	},
 	container: {
-		id: {
-			type: mongoose.Schema.Types.ObjectId,
-			ref: "Container",
-		},
+		type: mongoose.Schema.Types.ObjectId,
+		ref: "Container",
 	},
 });
 

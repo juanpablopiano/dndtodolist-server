@@ -15,6 +15,10 @@ const todoSchema = new mongoose.Schema({
 		type: mongoose.Schema.Types.ObjectId,
 		ref: "Container",
 	},
+	board: {
+		type: mongoose.Schema.Types.ObjectId,
+		ref: "Board",
+	},
 });
 
 module.exports = mongoose.model("Todo", todoSchema);

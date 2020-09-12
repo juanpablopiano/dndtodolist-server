@@ -14,14 +14,14 @@ router.post("/api/todo/new", async (req, res) => {
 
 		const container = await Container.findById(savedTodo.container);
 		container.todos.push(savedTodo._id);
-		
+
 		const io = req.app.get("socketio");
 		io.emit("new todo", savedTodo);
 		await container.save();
 		res.json(savedTodo.id);
 	} catch (error) {
 		console.log(error);
-		res.sendStatus(503)
+		res.sendStatus(503);
 	}
 });
 // READ a Todo
@@ -36,10 +36,10 @@ router.get("/api/todo/get/:id", async (req, res) => {
 router.get("/api/todo/all/:containerId?", async (req, res) => {
 	const containerId = req.params.containerId;
 
-	const foundTodos = await Todo.find({container: containerId})
+	const foundTodos = await Todo.find({ container: containerId });
 
 	res.json(foundTodos);
-})
+});
 // Update Todo
 router.put("/api/todo/:id", async (req, res) => {
 	const id = req.params.id;
@@ -88,7 +88,7 @@ router.get("/api/container/get/:id", async (req, res) => {
 // GET ALL Containers by Board ID
 router.get("/api/container/all/:boardId?", async (req, res) => {
 	const boardId = req.params.boardId;
-	const foundContainers = await Container.find({board: boardId});
+	const foundContainers = await Container.find({ board: boardId });
 
 	res.json(foundContainers);
 });
@@ -106,6 +106,8 @@ router.delete("/api/container/:id", async (req, res) => {
 	const id = req.params.id;
 
 	const deletedContainer = await Container.findByIdAndDelete(id);
+
+	await Todo.deleteMany({ container: id });
 
 	res.json(deletedContainer._id);
 });
@@ -152,8 +154,13 @@ router.delete("/api/board/:id", async (req, res) => {
 	const id = req.params.id;
 
 	const deletedBoard = await Board.findByIdAndDelete(id);
+	await Container.deleteMany({ board: id });
+	await Todo.deleteMany({ board: id });
 
-	res.json(deletedBoard);
+	const io = req.app.get("socketio");
+	io.emit("deleted board", deletedBoard._id);
+
+	res.json(deletedBoard._id);
 });
 
 module.exports = router;

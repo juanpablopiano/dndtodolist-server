@@ -56,6 +56,9 @@ router.delete("/api/todo/:id", async (req, res) => {
 
 	const deletedTodo = await Todo.findByIdAndDelete(id);
 
+	const io = req.app.get("socketio");
+	io.emit("deleted todo", deletedTodo._id);
+
 	res.json(deletedTodo._id);
 });
 
@@ -106,8 +109,10 @@ router.delete("/api/container/:id", async (req, res) => {
 	const id = req.params.id;
 
 	const deletedContainer = await Container.findByIdAndDelete(id);
-
 	await Todo.deleteMany({ container: id });
+
+	const io = req.app.get("socketio");
+	io.emit("deleted container", deletedContainer._id);
 
 	res.json(deletedContainer._id);
 });

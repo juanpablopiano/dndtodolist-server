@@ -40,6 +40,14 @@ router.get("/api/todo/all/:containerId?", async (req, res) => {
 
 	res.json(foundTodos);
 });
+// READ ALL Todos by board
+router.get("/api/todo/all/board/:boardId?", async (req, res) => {
+	const boardId = req.params.boardId;
+
+	const foundTodos = await Todo.find({ board: boardId });
+
+	res.json(foundTodos);
+});
 // Update Todo
 router.put("/api/todo/:id", async (req, res) => {
 	const id = req.params.id;
@@ -92,6 +100,13 @@ router.get("/api/container/get/:id", async (req, res) => {
 router.get("/api/container/all/:boardId?", async (req, res) => {
 	const boardId = req.params.boardId;
 	const foundContainers = await Container.find({ board: boardId });
+
+	res.json(foundContainers);
+});
+// GET ALL Containers by Board ID and Todo Populated
+router.get("/api/container/all/full/:boardId?", async (req, res) => {
+	const boardId = req.params.boardId;
+	const foundContainers = await Container.find({ board: boardId }).populate("todos").exec();
 
 	res.json(foundContainers);
 });
